@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>COVID-19 Automated EDA Report</title>
+    <style>
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 2rem; }
+      h1, h2 { margin: 0.5rem 0; }
+      .meta { color: #333; margin-bottom: 1rem; }
+      .grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+      iframe { width: 100%; height: 420px; border: 1px solid #ddd; }
+      .card { border: 1px solid #eee; padding: 1rem; border-radius: 8px; }
+    </style>
+  </head>
+  <body>
+    <h1>COVID-19 Automated EDA Report</h1>
+    <div class="meta">
+      <div>Generated: {{ meta.generated_on }}</div>
+      <div>Rows: {{ meta.rows }} | Countries: {{ meta.countries }}</div>
+      <div>Date range: {{ meta.date_min }} → {{ meta.date_max }}</div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Global New Cases</h2>
+        <iframe src="{{ charts.global_new_cases }}"></iframe>
+      </div>
+      <div class="card">
+        <h2>Global New Deaths</h2>
+        <iframe src="{{ charts.global_new_deaths }}"></iframe>
+      </div>
+      <div class="card">
+        <h2>Global Cumulative Cases</h2>
+        <iframe src="{{ charts.global_cum_cases }}"></iframe>
+      </div>
+      <div class="card">
+        <h2>Global Cumulative Deaths</h2>
+        <iframe src="{{ charts.global_cum_deaths }}"></iframe>
+      </div>
+      <div class="card">
+        <h2>Top Countries by Cumulative Cases</h2>
+        <iframe src="{{ charts.top_countries_cum_cases }}"></iframe>
+      </div>
+    </div>
+  </body>
+  </html>
