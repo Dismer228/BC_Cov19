@@ -61,7 +61,7 @@ def build_worldbank_wide() -> pd.DataFrame:
 
 
 def ensure_ext_schema(client: SnowflakeClient):
-    client.execute("CREATE DATABASE IF NOT EXISTS IDENTIFIER(%(db)s)", {"db": "COVID_DEV"})
+    client.execute("CREATE DATABASE IF NOT EXISTS COVID_DEV")
     client.execute("CREATE SCHEMA IF NOT EXISTS COVID_DEV.EXT")
     client.execute("CREATE SCHEMA IF NOT EXISTS COVID_DEV.ENRICHED")
 

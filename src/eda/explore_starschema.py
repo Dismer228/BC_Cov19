@@ -19,7 +19,7 @@ def show_tables(client: SnowflakeClient) -> List[Dict]:
     df = client.query_df(
         """
         SELECT TABLE_SCHEMA, TABLE_NAME, ROW_COUNT, BYTES
-        FROM COVID19_DATA.INFORMATION_SCHEMA.TABLES
+        FROM INFORMATION_SCHEMA.TABLES
         WHERE TABLE_TYPE = 'BASE TABLE'
         ORDER BY TABLE_SCHEMA, TABLE_NAME
         """
@@ -30,20 +30,20 @@ def show_tables(client: SnowflakeClient) -> List[Dict]:
 
 
 def sample_table(client: SnowflakeClient, schema: str, table: str, limit: int = 10):
-    df = client.query_df(f"SELECT * FROM COVID19_DATA.{schema}.{table} LIMIT {limit}")
+    df = client.query_df(f"SELECT * FROM {schema}.{table} LIMIT {limit}")
     df.to_csv(OUTPUT_DIR / f"sample_{schema}_{table}.csv", index=False)
     return df
 
 
 def profile_columns(client: SnowflakeClient, schema: str, table: str):
     df = client.query_df(
-        f"""
+        """
         SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, COMMENT
-        FROM COVID19_DATA.INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_SCHEMA = %%(schema)s AND TABLE_NAME = %%(table)s
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = %s AND TABLE_NAME = %s
         ORDER BY ORDINAL_POSITION
         """,
-        {"schema": schema, "table": table},
+        (schema, table),
     )
     df.to_csv(OUTPUT_DIR / f"columns_{schema}_{table}.csv", index=False)
     return df

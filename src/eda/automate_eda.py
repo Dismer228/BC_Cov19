@@ -18,8 +18,31 @@ ARTIFACTS.mkdir(parents=True, exist_ok=True)
 TEMPLATES = Path("src/eda/templates")
 
 
+def resolve_jhu_daily_table(client: SnowflakeClient) -> str:
+    candidates = (
+        "JHU_COVID_19_DAILY",
+        "COVID_19_DAILY",
+        "EPIDEMIOLOGY_DAILY",
+        "JHU_COVID_19",
+    )
+    df = client.query_df(
+        """
+        SELECT TABLE_SCHEMA, TABLE_NAME
+        FROM INFORMATION_SCHEMA.TABLES
+        WHERE UPPER(TABLE_NAME) IN (%s,%s,%s,%s)
+        ORDER BY CASE WHEN UPPER(TABLE_NAME) LIKE '%DAILY%' THEN 0 ELSE 1 END, TABLE_NAME
+        """,
+        tuple(candidates),
+    )
+    if df.empty:
+        raise RuntimeError("Could not locate JHU daily table in current database; run explore first.")
+    row = df.iloc[0]
+    return f"{row['TABLE_SCHEMA']}.{row['TABLE_NAME']}"
+
+
 def fetch_daily_timeseries(client: SnowflakeClient) -> pd.DataFrame:
-    sql = """
+    full_table = resolve_jhu_daily_table(client)
+    sql = f"""
         WITH base AS (
             SELECT
                 COALESCE(COUNTRY_REGION, COUNTRY) AS country,
@@ -28,7 +51,7 @@ def fetch_daily_timeseries(client: SnowflakeClient) -> pd.DataFrame:
                 SUM(NEW_DEATHS) AS new_deaths,
                 SUM(CUMULATIVE_CONFIRMED) AS cum_cases,
                 SUM(CUMULATIVE_DEATHS) AS cum_deaths
-            FROM COVID19_DATA.PUBLIC.JHU_COVID_19_DAILY
+            FROM {full_table}
             GROUP BY 1,2
         )
         SELECT * FROM base
